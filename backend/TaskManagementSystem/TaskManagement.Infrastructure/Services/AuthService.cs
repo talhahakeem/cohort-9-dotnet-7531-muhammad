@@ -66,13 +66,22 @@ public class AuthService : IAuthService
 
         if (!isPasswordValid)
             return null;
+
         var roles = await _userManager.GetRolesAsync(user);
+
         var claims = new List<Claim>
     {
+        // Standard JWT Claims
         new Claim(JwtRegisteredClaimNames.Sub, user.Id),
         new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
+        // ASP.NET Identity Claims
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.UserName!)
     };
+
+        // Add User Roles
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
