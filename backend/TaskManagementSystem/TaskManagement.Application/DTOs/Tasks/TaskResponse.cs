@@ -10,6 +10,8 @@ public class TaskResponse
 
     public string? Description { get; set; }
 
+    public string Category { get; set; } = string.Empty;
+
     public DateTime DueDate { get; set; }
 
     public TaskItemStatus Status { get; set; }

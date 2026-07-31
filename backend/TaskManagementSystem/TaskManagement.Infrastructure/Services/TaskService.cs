@@ -26,6 +26,7 @@ public class TaskService : ITaskService
                 Id = t.Id,
                 Title = t.Title,
                 Description = t.Description,
+                Category = t.Category,
                 DueDate = t.DueDate,
                 Status = t.Status,
                 Priority = t.Priority
@@ -44,6 +45,7 @@ public class TaskService : ITaskService
                 Id = t.Id,
                 Title = t.Title,
                 Description = t.Description,
+                Category = t.Category,
                 DueDate = t.DueDate,
                 Status = t.Status,
                 Priority = t.Priority
@@ -60,6 +62,7 @@ public class TaskService : ITaskService
             Id = Guid.NewGuid(),
             Title = request.Title,
             Description = request.Description,
+            Category = request.Category,
             DueDate = request.DueDate,
             Priority = request.Priority,
             Status = TaskItemStatus.Pending,
@@ -75,6 +78,7 @@ public class TaskService : ITaskService
             Id = task.Id,
             Title = task.Title,
             Description = task.Description,
+            Category = task.Category,
             DueDate = task.DueDate,
             Status = task.Status,
             Priority = task.Priority
@@ -91,6 +95,7 @@ public class TaskService : ITaskService
 
         task.Title = request.Title;
         task.Description = request.Description;
+        task.Category = request.Category;
         task.DueDate = request.DueDate;
         task.Status = request.Status;
         task.Priority = request.Priority;

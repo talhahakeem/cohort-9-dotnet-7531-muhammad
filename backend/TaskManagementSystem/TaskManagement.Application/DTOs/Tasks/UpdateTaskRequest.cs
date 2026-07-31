@@ -13,4 +13,7 @@ public class UpdateTaskRequest
     public TaskItemStatus Status { get; set; }
 
     public TaskPriority Priority { get; set; }
+    public string Category { get; set; } = string.Empty;
+
+    public string? AssignedUserId { get; set; }
 }

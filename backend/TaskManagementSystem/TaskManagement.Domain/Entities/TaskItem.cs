@@ -17,4 +17,6 @@ public class TaskItem
     public TaskPriority Priority { get; set; }
 
     public string UserId { get; set; } = string.Empty;
+
+    public string Category { get; set; } = string.Empty;
 }

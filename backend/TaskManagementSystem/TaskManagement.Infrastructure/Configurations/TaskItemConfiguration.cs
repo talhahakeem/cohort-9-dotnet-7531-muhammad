@@ -28,5 +28,8 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
 
         builder.Property(x => x.DueDate)
             .IsRequired();
+        builder.Property(x => x.Category)
+    .IsRequired()
+    .HasMaxLength(100);
     }
 }
