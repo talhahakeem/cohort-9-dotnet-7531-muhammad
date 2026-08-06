@@ -26,6 +26,12 @@ public class GlobalExceptionMiddleware
         {
             _logger.LogError(ex, "An unhandled exception occurred.");
 
+            // If the response has already started, we cannot modify it.
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
