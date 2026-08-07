@@ -54,7 +54,7 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.GetAllAsync("user-1"))
+            .Setup(x => x.GetAllAsync("user-1", false))
             .ReturnsAsync(tasks);
 
         // Act
@@ -65,7 +65,7 @@ public class TasksControllerTests
         Assert.Equal(tasks, okResult.Value);
 
         _taskServiceMock.Verify(
-            x => x.GetAllAsync("user-1"),
+            x => x.GetAllAsync("user-1", false),
             Times.Once);
     }
 
@@ -86,7 +86,7 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.GetByIdAsync(taskId, "user-1"))
+            .Setup(x => x.GetByIdAsync(taskId, "user-1", false))
             .ReturnsAsync(task);
 
         // Act
@@ -95,6 +95,10 @@ public class TasksControllerTests
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(task, okResult.Value);
+
+        _taskServiceMock.Verify(
+            x => x.GetByIdAsync(taskId, "user-1", false),
+            Times.Once);
     }
 
     [Fact]
@@ -104,7 +108,7 @@ public class TasksControllerTests
         var taskId = Guid.NewGuid();
 
         _taskServiceMock
-            .Setup(x => x.GetByIdAsync(taskId, "user-1"))
+            .Setup(x => x.GetByIdAsync(taskId, "user-1", false))
             .ReturnsAsync((TaskResponse?)null);
 
         // Act
@@ -112,6 +116,10 @@ public class TasksControllerTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+
+        _taskServiceMock.Verify(
+            x => x.GetByIdAsync(taskId, "user-1", false),
+            Times.Once);
     }
 
     [Fact]
@@ -126,6 +134,7 @@ public class TasksControllerTests
             Description = "New Description",
             Category = "Development",
             DueDate = DateTime.UtcNow.AddDays(5),
+            Status = TaskItemStatus.Pending,
             Priority = TaskPriority.High
         };
 
@@ -141,7 +150,7 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.CreateAsync(request, "user-1"))
+            .Setup(x => x.CreateAsync(request, "user-1", false))
             .ReturnsAsync(createdTask);
 
         // Act
@@ -150,9 +159,21 @@ public class TasksControllerTests
         // Assert
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
 
-        Assert.Equal(nameof(TasksController.GetById), createdResult.ActionName);
-        Assert.Equal(taskId, createdResult.RouteValues!["id"]);
-        Assert.Equal(createdTask, createdResult.Value);
+        Assert.Equal(
+            nameof(TasksController.GetById),
+            createdResult.ActionName);
+
+        Assert.Equal(
+            taskId,
+            createdResult.RouteValues!["id"]);
+
+        Assert.Equal(
+            createdTask,
+            createdResult.Value);
+
+        _taskServiceMock.Verify(
+            x => x.CreateAsync(request, "user-1", false),
+            Times.Once);
     }
 
     [Fact]
@@ -172,7 +193,11 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.UpdateAsync(taskId, request, "user-1"))
+            .Setup(x => x.UpdateAsync(
+                taskId,
+                request,
+                "user-1",
+                false))
             .ReturnsAsync(true);
 
         // Act
@@ -180,6 +205,14 @@ public class TasksControllerTests
 
         // Assert
         Assert.IsType<NoContentResult>(result);
+
+        _taskServiceMock.Verify(
+            x => x.UpdateAsync(
+                taskId,
+                request,
+                "user-1",
+                false),
+            Times.Once);
     }
 
     [Fact]
@@ -199,7 +232,11 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.UpdateAsync(taskId, request, "user-1"))
+            .Setup(x => x.UpdateAsync(
+                taskId,
+                request,
+                "user-1",
+                false))
             .ReturnsAsync(false);
 
         // Act
@@ -207,6 +244,14 @@ public class TasksControllerTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+
+        _taskServiceMock.Verify(
+            x => x.UpdateAsync(
+                taskId,
+                request,
+                "user-1",
+                false),
+            Times.Once);
     }
 
     [Fact]
@@ -216,7 +261,10 @@ public class TasksControllerTests
         var taskId = Guid.NewGuid();
 
         _taskServiceMock
-            .Setup(x => x.DeleteAsync(taskId, "user-1"))
+            .Setup(x => x.DeleteAsync(
+                taskId,
+                "user-1",
+                false))
             .ReturnsAsync(true);
 
         // Act
@@ -224,6 +272,13 @@ public class TasksControllerTests
 
         // Assert
         Assert.IsType<NoContentResult>(result);
+
+        _taskServiceMock.Verify(
+            x => x.DeleteAsync(
+                taskId,
+                "user-1",
+                false),
+            Times.Once);
     }
 
     [Fact]
@@ -233,7 +288,10 @@ public class TasksControllerTests
         var taskId = Guid.NewGuid();
 
         _taskServiceMock
-            .Setup(x => x.DeleteAsync(taskId, "user-1"))
+            .Setup(x => x.DeleteAsync(
+                taskId,
+                "user-1",
+                false))
             .ReturnsAsync(false);
 
         // Act
@@ -241,5 +299,12 @@ public class TasksControllerTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+
+        _taskServiceMock.Verify(
+            x => x.DeleteAsync(
+                taskId,
+                "user-1",
+                false),
+            Times.Once);
     }
 }

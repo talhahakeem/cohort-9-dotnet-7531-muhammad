@@ -2,7 +2,6 @@
 using TaskManagement.Application.DTOs.Tasks;
 using TaskManagement.Application.Interfaces;
 using TaskManagement.Domain.Entities;
-using TaskManagement.Domain.Enums;
 using TaskManagement.Infrastructure.Data;
 
 namespace TaskManagement.Infrastructure.Services;
@@ -16,10 +15,18 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskResponse>> GetAllAsync(string userId)
+    public async Task<IEnumerable<TaskResponse>> GetAllAsync(
+        string userId,
+        bool isAdmin)
     {
-        var tasks = await _context.Tasks
-            .Where(t => t.UserId == userId)
+        var query = _context.Tasks.AsQueryable();
+
+        if (!isAdmin)
+        {
+            query = query.Where(t => t.UserId == userId);
+        }
+
+        var tasks = await query
             .OrderBy(t => t.DueDate)
             .Select(t => new TaskResponse
             {
@@ -36,10 +43,20 @@ public class TaskService : ITaskService
         return tasks;
     }
 
-    public async Task<TaskResponse?> GetByIdAsync(Guid id, string userId)
+    public async Task<TaskResponse?> GetByIdAsync(
+        Guid id,
+        string userId,
+        bool isAdmin)
     {
-        var task = await _context.Tasks
-            .Where(t => t.Id == id && t.UserId == userId)
+        var query = _context.Tasks
+            .Where(t => t.Id == id);
+
+        if (!isAdmin)
+        {
+            query = query.Where(t => t.UserId == userId);
+        }
+
+        var task = await query
             .Select(t => new TaskResponse
             {
                 Id = t.Id,
@@ -55,8 +72,19 @@ public class TaskService : ITaskService
         return task;
     }
 
-    public async Task<TaskResponse> CreateAsync(CreateTaskRequest request, string userId)
+    public async Task<TaskResponse> CreateAsync(
+        CreateTaskRequest request,
+        string userId,
+        bool isAdmin)
     {
+        var taskUserId = userId;
+
+        if (isAdmin &&
+            !string.IsNullOrWhiteSpace(request.AssignedUserId))
+        {
+            taskUserId = request.AssignedUserId;
+        }
+
         var task = new TaskItem
         {
             Id = Guid.NewGuid(),
@@ -64,9 +92,9 @@ public class TaskService : ITaskService
             Description = request.Description,
             Category = request.Category,
             DueDate = request.DueDate,
+            Status = request.Status,
             Priority = request.Priority,
-            Status = TaskItemStatus.Pending,
-            UserId = userId
+            UserId = taskUserId
         };
 
         _context.Tasks.Add(task);
@@ -85,10 +113,21 @@ public class TaskService : ITaskService
         };
     }
 
-    public async Task<bool> UpdateAsync(Guid id, UpdateTaskRequest request, string userId)
+    public async Task<bool> UpdateAsync(
+        Guid id,
+        UpdateTaskRequest request,
+        string userId,
+        bool isAdmin)
     {
-        var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+        var query = _context.Tasks
+            .Where(t => t.Id == id);
+
+        if (!isAdmin)
+        {
+            query = query.Where(t => t.UserId == userId);
+        }
+
+        var task = await query.FirstOrDefaultAsync();
 
         if (task == null)
             return false;
@@ -100,15 +139,31 @@ public class TaskService : ITaskService
         task.Status = request.Status;
         task.Priority = request.Priority;
 
+        if (isAdmin &&
+            !string.IsNullOrWhiteSpace(request.AssignedUserId))
+        {
+            task.UserId = request.AssignedUserId;
+        }
+
         await _context.SaveChangesAsync();
 
         return true;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string userId)
+    public async Task<bool> DeleteAsync(
+        Guid id,
+        string userId,
+        bool isAdmin)
     {
-        var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+        var query = _context.Tasks
+            .Where(t => t.Id == id);
+
+        if (!isAdmin)
+        {
+            query = query.Where(t => t.UserId == userId);
+        }
+
+        var task = await query.FirstOrDefaultAsync();
 
         if (task == null)
             return false;

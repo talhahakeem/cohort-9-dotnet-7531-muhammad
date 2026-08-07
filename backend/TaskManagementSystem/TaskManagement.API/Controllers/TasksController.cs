@@ -25,17 +25,28 @@ public class TasksController : ControllerBase
             ?? throw new UnauthorizedAccessException("User ID not found.");
     }
 
+    private bool IsAdmin()
+    {
+        return User.IsInRole("Admin");
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var tasks = await _taskService.GetAllAsync(GetUserId());
+        var tasks = await _taskService.GetAllAsync(
+            GetUserId(),
+            IsAdmin());
+
         return Ok(tasks);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var task = await _taskService.GetByIdAsync(id, GetUserId());
+        var task = await _taskService.GetByIdAsync(
+            id,
+            GetUserId(),
+            IsAdmin());
 
         if (task == null)
             return NotFound();
@@ -46,15 +57,27 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
-        var task = await _taskService.CreateAsync(request, GetUserId());
+        var task = await _taskService.CreateAsync(
+            request,
+            GetUserId(),
+            IsAdmin());
 
-        return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = task.Id },
+            task);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, UpdateTaskRequest request)
+    public async Task<IActionResult> Update(
+        Guid id,
+        UpdateTaskRequest request)
     {
-        var result = await _taskService.UpdateAsync(id, request, GetUserId());
+        var result = await _taskService.UpdateAsync(
+            id,
+            request,
+            GetUserId(),
+            IsAdmin());
 
         if (!result)
             return NotFound();
@@ -65,7 +88,10 @@ public class TasksController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _taskService.DeleteAsync(id, GetUserId());
+        var result = await _taskService.DeleteAsync(
+            id,
+            GetUserId(),
+            IsAdmin());
 
         if (!result)
             return NotFound();

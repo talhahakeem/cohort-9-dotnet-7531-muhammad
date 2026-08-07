@@ -4,13 +4,28 @@ namespace TaskManagement.Application.Interfaces;
 
 public interface ITaskService
 {
-    Task<IEnumerable<TaskResponse>> GetAllAsync(string userId);
+    Task<IEnumerable<TaskResponse>> GetAllAsync(
+        string userId,
+        bool isAdmin);
 
-    Task<TaskResponse?> GetByIdAsync(Guid id, string userId);
+    Task<TaskResponse?> GetByIdAsync(
+        Guid id,
+        string userId,
+        bool isAdmin);
 
-    Task<TaskResponse> CreateAsync(CreateTaskRequest request, string userId);
+    Task<TaskResponse> CreateAsync(
+        CreateTaskRequest request,
+        string userId,
+        bool isAdmin);
 
-    Task<bool> UpdateAsync(Guid id, UpdateTaskRequest request, string userId);
+    Task<bool> UpdateAsync(
+        Guid id,
+        UpdateTaskRequest request,
+        string userId,
+        bool isAdmin);
 
-    Task<bool> DeleteAsync(Guid id, string userId);
+    Task<bool> DeleteAsync(
+        Guid id,
+        string userId,
+        bool isAdmin);
 }
