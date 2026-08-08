@@ -18,6 +18,10 @@ public class TaskServiceTests
         return new ApplicationDbContext(options);
     }
 
+    // ============================================================
+    // GET ALL TESTS
+    // ============================================================
+
     [Fact]
     public async Task GetAllAsync_ShouldReturnOnlyOwnTasks_WhenUserIsNotAdmin()
     {
@@ -95,11 +99,287 @@ public class TaskServiceTests
         var service = new TaskService(context);
 
         // Act
-        var result = await service.GetAllAsync("admin-1", true);
+        var result = await service.GetAllAsync(
+            "admin-1",
+            true);
 
         // Assert
         Assert.Equal(2, result.Count());
     }
+
+    // ============================================================
+    // SEARCH AND FILTER TESTS
+    // ============================================================
+
+    [Fact]
+    public async Task GetAllAsync_ShouldFilterTasksBySearch_WhenSearchMatchesTitle()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.AddRange(
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Build Login API",
+                Description = "Authentication work",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(2),
+                Priority = TaskPriority.High,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            },
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Write Documentation",
+                Description = "Project documentation",
+                Category = "Documentation",
+                DueDate = DateTime.UtcNow.AddDays(3),
+                Priority = TaskPriority.Low,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            search: "Login");
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal("Build Login API", result.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldFilterTasksBySearch_WhenSearchMatchesDescription()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.AddRange(
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Backend Task",
+                Description = "Authentication implementation",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(2),
+                Priority = TaskPriority.High,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            },
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Frontend Task",
+                Description = "Dashboard implementation",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(3),
+                Priority = TaskPriority.Low,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            search: "Authentication");
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal("Backend Task", result.First().Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldFilterTasksByCategory()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.AddRange(
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "API Task",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(2),
+                Priority = TaskPriority.High,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            },
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Test Task",
+                Category = "Testing",
+                DueDate = DateTime.UtcNow.AddDays(3),
+                Priority = TaskPriority.Low,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            category: "Testing");
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal("Testing", result.First().Category);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldFilterTasksByStatus()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.AddRange(
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Pending Task",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(2),
+                Priority = TaskPriority.High,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            },
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Completed Task",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(3),
+                Priority = TaskPriority.Low,
+                Status = TaskItemStatus.Completed,
+                UserId = userId
+            });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            status: TaskItemStatus.Completed.ToString());
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(
+            TaskItemStatus.Completed,
+            result.First().Status);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldFilterTasksByPriority()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.AddRange(
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "High Priority Task",
+                Category = "Development",
+                DueDate = DateTime.UtcNow.AddDays(2),
+                Priority = TaskPriority.High,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            },
+            new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Low Priority Task",
+                Category = "Testing",
+                DueDate = DateTime.UtcNow.AddDays(3),
+                Priority = TaskPriority.Low,
+                Status = TaskItemStatus.Pending,
+                UserId = userId
+            });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            priority: TaskPriority.High.ToString());
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(
+            TaskPriority.High,
+            result.First().Priority);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ShouldReturnEmpty_WhenSearchDoesNotMatch()
+    {
+        // Arrange
+        await using var context = CreateContext();
+
+        var userId = "user-1";
+
+        context.Tasks.Add(new TaskItem
+        {
+            Id = Guid.NewGuid(),
+            Title = "Build API",
+            Category = "Development",
+            DueDate = DateTime.UtcNow.AddDays(2),
+            Priority = TaskPriority.High,
+            Status = TaskItemStatus.Pending,
+            UserId = userId
+        });
+
+        await context.SaveChangesAsync();
+
+        var service = new TaskService(context);
+
+        // Act
+        var result = await service.GetAllAsync(
+            userId,
+            false,
+            search: "XYZ");
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    // ============================================================
+    // GET BY ID TESTS
+    // ============================================================
 
     [Fact]
     public async Task GetByIdAsync_ShouldReturnOwnTask_WhenUserIsNotAdmin()
@@ -127,7 +407,10 @@ public class TaskServiceTests
         var service = new TaskService(context);
 
         // Act
-        var result = await service.GetByIdAsync(taskId, userId, false);
+        var result = await service.GetByIdAsync(
+            taskId,
+            userId,
+            false);
 
         // Assert
         Assert.NotNull(result);
@@ -202,6 +485,10 @@ public class TaskServiceTests
         Assert.Equal(taskId, result.Id);
     }
 
+    // ============================================================
+    // CREATE TESTS
+    // ============================================================
+
     [Fact]
     public async Task CreateAsync_ShouldCreateTaskForCurrentUser_WhenUserIsNotAdmin()
     {
@@ -274,6 +561,10 @@ public class TaskServiceTests
 
         Assert.Equal(assignedUserId, savedTask.UserId);
     }
+
+    // ============================================================
+    // UPDATE TESTS
+    // ============================================================
 
     [Fact]
     public async Task UpdateAsync_ShouldUpdateOwnTask_WhenUserIsNotAdmin()
@@ -423,6 +714,10 @@ public class TaskServiceTests
         Assert.Equal("Admin Updated Task", updatedTask.Title);
         Assert.Equal(TaskItemStatus.Completed, updatedTask.Status);
     }
+
+    // ============================================================
+    // DELETE TESTS
+    // ============================================================
 
     [Fact]
     public async Task DeleteAsync_ShouldDeleteOwnTask_WhenUserIsNotAdmin()

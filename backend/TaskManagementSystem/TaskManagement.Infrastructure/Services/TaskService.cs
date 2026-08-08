@@ -16,14 +16,52 @@ public class TaskService : ITaskService
     }
 
     public async Task<IEnumerable<TaskResponse>> GetAllAsync(
-        string userId,
-        bool isAdmin)
+    string userId,
+    bool isAdmin,
+    string? search = null,
+    string? status = null,
+    string? priority = null,
+    string? category = null)
     {
         var query = _context.Tasks.AsQueryable();
 
+        // Regular user can only see their own tasks
         if (!isAdmin)
         {
             query = query.Where(t => t.UserId == userId);
+        }
+
+        // Search by title or description
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim();
+
+            query = query.Where(t =>
+                t.Title.Contains(search) ||
+                (t.Description != null && t.Description.Contains(search)));
+        }
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(t =>
+                t.Status.ToString() == status);
+        }
+
+        // Filter by priority
+        if (!string.IsNullOrWhiteSpace(priority))
+        {
+            query = query.Where(t =>
+                t.Priority.ToString() == priority);
+        }
+
+        // Filter by category
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            category = category.Trim();
+
+            query = query.Where(t =>
+                t.Category == category);
         }
 
         var tasks = await query

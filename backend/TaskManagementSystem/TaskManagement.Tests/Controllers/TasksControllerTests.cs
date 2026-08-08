@@ -54,8 +54,14 @@ public class TasksControllerTests
         };
 
         _taskServiceMock
-            .Setup(x => x.GetAllAsync("user-1", false))
-            .ReturnsAsync(tasks);
+    .Setup(x => x.GetAllAsync(
+        "user-1",
+        false,
+        null,
+        null,
+        null,
+        null))
+    .ReturnsAsync(tasks);
 
         // Act
         var result = await _controller.GetAll();
@@ -65,8 +71,14 @@ public class TasksControllerTests
         Assert.Equal(tasks, okResult.Value);
 
         _taskServiceMock.Verify(
-            x => x.GetAllAsync("user-1", false),
-            Times.Once);
+            x => x.GetAllAsync(
+                "user-1",
+                false,
+                null,
+                null,
+                null,
+                null),
+            Times.Once);  
     }
 
     [Fact]

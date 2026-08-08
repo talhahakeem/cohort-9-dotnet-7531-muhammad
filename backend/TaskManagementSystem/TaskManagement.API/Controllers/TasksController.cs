@@ -31,11 +31,19 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+    [FromQuery] string? search = null,
+    [FromQuery] string? status = null,
+    [FromQuery] string? priority = null,
+    [FromQuery] string? category = null)
     {
         var tasks = await _taskService.GetAllAsync(
             GetUserId(),
-            IsAdmin());
+            IsAdmin(),
+            search,
+            status,
+            priority,
+            category);
 
         return Ok(tasks);
     }

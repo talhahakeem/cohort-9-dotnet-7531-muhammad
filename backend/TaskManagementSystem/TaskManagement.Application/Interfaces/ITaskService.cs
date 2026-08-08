@@ -6,7 +6,11 @@ public interface ITaskService
 {
     Task<IEnumerable<TaskResponse>> GetAllAsync(
         string userId,
-        bool isAdmin);
+        bool isAdmin,
+        string? search = null,
+        string? status = null,
+        string? priority = null,
+        string? category = null);
 
     Task<TaskResponse?> GetByIdAsync(
         Guid id,
