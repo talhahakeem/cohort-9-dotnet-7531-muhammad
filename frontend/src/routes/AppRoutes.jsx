@@ -6,6 +6,7 @@ import Register from '../pages/Register'
 import Dashboard from '../pages/Dashboard'
 import MyTasks from '../pages/MyTasks'
 import CreateTask from '../pages/CreateTask'
+import TaskDetails from '../pages/TaskDetails'
 
 function AppRoutes() {
   return (
@@ -17,10 +18,11 @@ function AppRoutes() {
       </Route>
 
       {/* Dashboard */}
-      <Route element={<DashboardLayout />}>
+<Route element={<DashboardLayout />}>
   <Route path="/dashboard" element={<Dashboard />} />
   <Route path="/tasks" element={<MyTasks />} />
   <Route path="/tasks/create" element={<CreateTask />} />
+  <Route path="/tasks/details" element={<TaskDetails />} />
 </Route>
 
       {/* Default */}

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './MyTasks.css'
 
@@ -41,6 +42,7 @@ const initialTasks = [
 ]
 
 function MyTasks() {
+const navigate = useNavigate()
   const [tasks] = useState(initialTasks)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -144,9 +146,13 @@ function MyTasks() {
                   {task.status}
                 </span>
 
-                <button className="task-action-button">
-                  View
-                </button>
+                <button
+  type="button"
+  className="view-button"
+  onClick={() => navigate('/tasks/details')}
+>
+  View
+</button>
               </div>
             </div>
           ))
