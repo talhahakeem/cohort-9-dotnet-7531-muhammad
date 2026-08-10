@@ -89,7 +89,7 @@ function AdminAllTasks() {
   }
 
   const handleEditTask = (task) => {
-    alert(`Edit: ${task.title}`)
+    navigate('/admin/tasks/edit')
   }
 
   const handleDeleteTask = (task) => {

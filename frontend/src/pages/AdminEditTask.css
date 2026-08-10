@@ -1,0 +1,113 @@
+.admin-edit-task-page {
+  padding: 32px;
+}
+
+.admin-edit-task-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.admin-edit-task-header h1 {
+  margin: 0 0 8px;
+}
+
+.admin-edit-task-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-edit-back-button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #1e293b;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.admin-edit-task-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.admin-edit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-edit-form-group label {
+  font-weight: 500;
+  color: #334155;
+}
+
+.admin-edit-form-group input,
+.admin-edit-form-group textarea,
+.admin-edit-form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  color: #0f172a;
+  background: white;
+}
+
+.admin-edit-form-group textarea {
+  resize: vertical;
+}
+
+.admin-edit-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.admin-edit-task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.admin-edit-cancel-button,
+.admin-edit-save-button {
+  padding: 11px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-edit-cancel-button {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+}
+
+.admin-edit-save-button {
+  border: none;
+  background: #4f46e5;
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .admin-edit-task-page {
+    padding: 20px;
+  }
+
+  .admin-edit-task-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .admin-edit-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

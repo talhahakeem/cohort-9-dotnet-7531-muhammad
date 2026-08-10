@@ -15,6 +15,8 @@ import AdminDashboard from '../pages/AdminDashboard'
 import AdminUsers from '../pages/AdminUsers'
 import AdminAllTasks from '../pages/AdminAllTasks'
 import AdminCreateTask from '../pages/AdminCreateTask'
+import AdminTaskDetails from '../pages/AdminTaskDetails'
+import AdminEditTask from '../pages/AdminEditTask'
 
 function AppRoutes() {
   return (
@@ -40,6 +42,8 @@ function AppRoutes() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/tasks" element={<AdminAllTasks />} />
         <Route path="/admin/tasks/create" element={<AdminCreateTask />} />
+        <Route path="/admin/tasks/details" element={<AdminTaskDetails />} />
+<Route path="/admin/tasks/edit" element={<AdminEditTask />} />
       </Route>
 
       {/* Default */}
