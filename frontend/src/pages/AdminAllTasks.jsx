@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './AdminAllTasks.css'
 
@@ -55,6 +56,8 @@ const initialTasks = [
 ]
 
 function AdminAllTasks() {
+  const navigate = useNavigate()
+
   const [tasks] = useState(initialTasks)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -78,7 +81,7 @@ function AdminAllTasks() {
   })
 
   const handleCreateTask = () => {
-    alert('Create Task')
+    navigate('/admin/tasks/create')
   }
 
   const handleViewTask = (task) => {

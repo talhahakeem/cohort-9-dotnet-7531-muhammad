@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout'
 import DashboardLayout from '../layouts/DashboardLayout'
+import AdminLayout from '../layouts/AdminLayout'
+
 import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Dashboard from '../pages/Dashboard'
@@ -8,10 +10,11 @@ import MyTasks from '../pages/MyTasks'
 import CreateTask from '../pages/CreateTask'
 import TaskDetails from '../pages/TaskDetails'
 import EditTask from '../pages/EditTask'
+
 import AdminDashboard from '../pages/AdminDashboard'
-import AdminLayout from '../layouts/AdminLayout'
 import AdminUsers from '../pages/AdminUsers'
 import AdminAllTasks from '../pages/AdminAllTasks'
+import AdminCreateTask from '../pages/AdminCreateTask'
 
 function AppRoutes() {
   return (
@@ -24,18 +27,20 @@ function AppRoutes() {
 
       {/* User Dashboard */}
       <Route element={<DashboardLayout />}>
-  <Route path="/dashboard" element={<Dashboard />} />
-  <Route path="/tasks" element={<MyTasks />} />
-  <Route path="/tasks/create" element={<CreateTask />} />
-  <Route path="/tasks/details" element={<TaskDetails />} />
-  <Route path="/tasks/edit" element={<EditTask />} />
-</Route>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/tasks" element={<MyTasks />} />
+        <Route path="/tasks/create" element={<CreateTask />} />
+        <Route path="/tasks/details" element={<TaskDetails />} />
+        <Route path="/tasks/edit" element={<EditTask />} />
+      </Route>
 
-<Route element={<AdminLayout />}>
-  <Route path="/admin/dashboard" element={<AdminDashboard />} />
-<Route path="/admin/users" element={<AdminUsers />} />
-<Route path="/admin/tasks" element={<AdminAllTasks />} />
-</Route>
+      {/* Admin Dashboard */}
+      <Route element={<AdminLayout />}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/tasks" element={<AdminAllTasks />} />
+        <Route path="/admin/tasks/create" element={<AdminCreateTask />} />
+      </Route>
 
       {/* Default */}
       <Route path="/" element={<Navigate to="/login" replace />} />
