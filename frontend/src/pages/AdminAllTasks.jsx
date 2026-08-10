@@ -84,8 +84,8 @@ function AdminAllTasks() {
     navigate('/admin/tasks/create')
   }
 
-  const handleViewTask = (task) => {
-    alert(`View: ${task.title}`)
+  const handleViewTask = () => {
+    navigate('/admin/tasks/details')
   }
 
   const handleEditTask = (task) => {
@@ -187,7 +187,7 @@ function AdminAllTasks() {
                 <div className="admin-task-actions">
                   <button
                     type="button"
-                    onClick={() => handleViewTask(task)}
+                    onClick={handleViewTask}
                   >
                     View
                   </button>
