@@ -7,6 +7,7 @@ import Dashboard from '../pages/Dashboard'
 import MyTasks from '../pages/MyTasks'
 import CreateTask from '../pages/CreateTask'
 import TaskDetails from '../pages/TaskDetails'
+import EditTask from '../pages/EditTask'
 
 function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ function AppRoutes() {
   <Route path="/tasks" element={<MyTasks />} />
   <Route path="/tasks/create" element={<CreateTask />} />
   <Route path="/tasks/details" element={<TaskDetails />} />
+<Route path="/tasks/edit" element={<EditTask />} />
 </Route>
 
       {/* Default */}

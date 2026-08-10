@@ -1,6 +1,8 @@
 import StatCard from '../components/dashboard/StatCard'
+import { useNavigate } from 'react-router-dom'
 
 function Dashboard() {
+const navigate = useNavigate()
   return (
     <div className="dashboard-page">
       <div className="page-heading">
@@ -46,10 +48,13 @@ function Dashboard() {
             <h3>Recent Tasks</h3>
             <p>Your latest assigned tasks</p>
           </div>
-
-          <button type="button" className="text-btn">
-            View all
-          </button>
+<button
+  type="button"
+  className="view-all-button"
+  onClick={() => navigate('/tasks')}
+>
+  View all
+</button>
         </div>
 
         <div className="empty-state">

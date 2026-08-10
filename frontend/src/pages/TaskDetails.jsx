@@ -97,7 +97,7 @@ function TaskDetails() {
           <button
             type="button"
             className="primary-button"
-            onClick={() => navigate('/tasks/create')}
+            onClick={() => navigate('/tasks/edit')}
           >
             Edit Task
           </button>

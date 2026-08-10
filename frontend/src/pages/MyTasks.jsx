@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './MyTasks.css'
+import DeleteTaskModal from '../components/dashboard/DeleteTaskModal'
 
 const initialTasks = [
   {
     id: 1,
     title: 'Complete project documentation',
-    description: 'Prepare the technical documentation for the task management system.',
+    description:
+      'Prepare the technical documentation for the task management system.',
     status: 'In Progress',
     priority: 'High',
     category: 'Documentation',
@@ -15,7 +17,8 @@ const initialTasks = [
   {
     id: 2,
     title: 'Review authentication module',
-    description: 'Review login, registration and JWT authentication implementation.',
+    description:
+      'Review login, registration and JWT authentication implementation.',
     status: 'Pending',
     priority: 'Medium',
     category: 'Development',
@@ -24,7 +27,8 @@ const initialTasks = [
   {
     id: 3,
     title: 'Write unit tests',
-    description: 'Add unit tests for task controller and task service.',
+    description:
+      'Add unit tests for task controller and task service.',
     status: 'Completed',
     priority: 'High',
     category: 'Testing',
@@ -33,7 +37,8 @@ const initialTasks = [
   {
     id: 4,
     title: 'Update dashboard UI',
-    description: 'Improve dashboard layout and make the interface responsive.',
+    description:
+      'Improve dashboard layout and make the interface responsive.',
     status: 'Pending',
     priority: 'Low',
     category: 'Frontend',
@@ -42,11 +47,14 @@ const initialTasks = [
 ]
 
 function MyTasks() {
-const navigate = useNavigate()
-  const [tasks] = useState(initialTasks)
+  const navigate = useNavigate()
+
+  const [tasks, setTasks] = useState(initialTasks)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [priorityFilter, setPriorityFilter] = useState('All')
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
@@ -62,15 +70,43 @@ const navigate = useNavigate()
     return matchesSearch && matchesStatus && matchesPriority
   })
 
+  const handleDeleteClick = (task) => {
+    setSelectedTask(task)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!selectedTask) {
+      return
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== selectedTask.id)
+    )
+
+    setIsDeleteModalOpen(false)
+    setSelectedTask(null)
+  }
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false)
+    setSelectedTask(null)
+  }
+
   return (
-    <div className="tasks-page">
-      <div className="tasks-header">
+    <div className="my-tasks-page">
+      <div className="page-header">
         <div>
+          <p className="page-label">Task Management</p>
           <h1>My Tasks</h1>
           <p>Manage and track your assigned tasks.</p>
         </div>
 
-        <button className="create-task-button">
+        <button
+          type="button"
+          className="create-task-button"
+          onClick={() => navigate('/tasks/create')}
+        >
           + Create Task
         </button>
       </div>
@@ -122,8 +158,7 @@ const navigate = useNavigate()
                   <h3>{task.title}</h3>
 
                   <span
-                    className={`priority-badge priority-${task.priority
-                      .toLowerCase()}`}
+                    className={`priority-badge priority-${task.priority.toLowerCase()}`}
                   >
                     {task.priority}
                   </span>
@@ -146,13 +181,31 @@ const navigate = useNavigate()
                   {task.status}
                 </span>
 
-                <button
-  type="button"
-  className="view-button"
-  onClick={() => navigate('/tasks/details')}
->
-  View
-</button>
+                <div className="task-actions">
+                  <button
+                    type="button"
+                    className="view-button"
+                    onClick={() => navigate('/tasks/details')}
+                  >
+                    View
+                  </button>
+
+                  <button
+                    type="button"
+                    className="edit-button"
+                    onClick={() => navigate('/tasks/edit')}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => handleDeleteClick(task)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -163,6 +216,13 @@ const navigate = useNavigate()
           </div>
         )}
       </div>
+
+      <DeleteTaskModal
+        isOpen={isDeleteModalOpen}
+        taskTitle={selectedTask?.title || ''}
+        onCancel={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }
