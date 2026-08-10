@@ -11,6 +11,7 @@ import EditTask from '../pages/EditTask'
 import AdminDashboard from '../pages/AdminDashboard'
 import AdminLayout from '../layouts/AdminLayout'
 import AdminUsers from '../pages/AdminUsers'
+import AdminAllTasks from '../pages/AdminAllTasks'
 
 function AppRoutes() {
   return (
@@ -33,6 +34,7 @@ function AppRoutes() {
 <Route element={<AdminLayout />}>
   <Route path="/admin/dashboard" element={<AdminDashboard />} />
 <Route path="/admin/users" element={<AdminUsers />} />
+<Route path="/admin/tasks" element={<AdminAllTasks />} />
 </Route>
 
       {/* Default */}

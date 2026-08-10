@@ -1,0 +1,206 @@
+.admin-all-tasks-page {
+  padding: 32px;
+}
+
+.admin-all-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.admin-all-tasks-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  color: #0f172a;
+}
+
+.admin-all-tasks-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-create-task-button {
+  border: none;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: white;
+  padding: 11px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-create-task-button:hover {
+  background: #4338ca;
+}
+
+.admin-task-filters {
+  display: grid;
+  grid-template-columns: 1fr 200px 200px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-task-filters input,
+.admin-task-filters select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.admin-task-filters input:focus,
+.admin-task-filters select:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.admin-task-summary {
+  margin-bottom: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-task-table-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.admin-task-table {
+  min-width: 1050px;
+}
+
+.admin-task-row {
+  display: grid;
+  grid-template-columns: 2fr 1.1fr 1.1fr 0.8fr 1fr 1.7fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.admin-task-row:last-child {
+  border-bottom: none;
+}
+
+.admin-task-header {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.admin-task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.admin-task-info strong {
+  color: #0f172a;
+}
+
+.admin-task-info small {
+  color: #94a3b8;
+}
+
+.admin-status-badge,
+.admin-priority-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-in-progress {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.status-completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.priority-high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.priority-medium {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.priority-low {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.admin-task-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-task-actions button {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.admin-task-actions button:hover {
+  background: #f8fafc;
+}
+
+.admin-task-actions .admin-delete-button {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.admin-no-tasks {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.admin-no-tasks h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.admin-no-tasks p {
+  margin: 0;
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .admin-all-tasks-page {
+    padding: 20px;
+  }
+
+  .admin-task-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-all-tasks-header {
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
