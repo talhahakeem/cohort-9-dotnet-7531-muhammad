@@ -6,10 +6,8 @@ function DeleteTaskModal({ isOpen, taskTitle, onCancel, onConfirm }) {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="delete-modal" role="dialog" aria-modal="true">
-        <div className="delete-modal-icon">!</div>
-
+    <div className="delete-modal-overlay">
+      <div className="delete-modal">
         <h2>Delete Task?</h2>
 
         <p>

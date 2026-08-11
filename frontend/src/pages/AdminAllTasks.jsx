@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import DeleteTaskModal from '../components/dashboard/DeleteTaskModal'
 import './AdminAllTasks.css'
 
 const initialTasks = [
@@ -58,10 +59,11 @@ const initialTasks = [
 function AdminAllTasks() {
   const navigate = useNavigate()
 
-  const [tasks] = useState(initialTasks)
+  const [tasks, setTasks] = useState(initialTasks)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [priorityFilter, setPriorityFilter] = useState('All')
+  const [taskToDelete, setTaskToDelete] = useState(null)
 
   const filteredTasks = tasks.filter((task) => {
     const search = searchTerm.toLowerCase()
@@ -93,7 +95,17 @@ function AdminAllTasks() {
   }
 
   const handleDeleteTask = (task) => {
-    alert(`Delete: ${task.title}`)
+    setTaskToDelete(task)
+  }
+
+  const confirmDeleteTask = () => {
+    if (!taskToDelete) return
+    setTasks((currentTasks) => currentTasks.filter((item) => item.id !== taskToDelete.id))
+    setTaskToDelete(null)
+  }
+
+  const cancelDeleteTask = () => {
+    setTaskToDelete(null)
   }
 
   return (
@@ -217,6 +229,12 @@ function AdminAllTasks() {
           )}
         </div>
       </div>
+      <DeleteTaskModal
+        isOpen={Boolean(taskToDelete)}
+        taskTitle={taskToDelete?.title || ''}
+        onCancel={cancelDeleteTask}
+        onConfirm={confirmDeleteTask}
+      />
     </div>
   )
 }
