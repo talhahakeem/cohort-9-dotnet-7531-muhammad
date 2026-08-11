@@ -59,7 +59,29 @@ const initialTasks = [
 function AdminAllTasks() {
   const navigate = useNavigate()
 
-  const [tasks, setTasks] = useState(initialTasks)
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const storedTasks = localStorage.getItem('adminTasks')
+
+      if (!storedTasks) {
+        localStorage.setItem('adminTasks', JSON.stringify(initialTasks))
+        return initialTasks
+      }
+
+      const parsedTasks = JSON.parse(storedTasks)
+
+      if (!Array.isArray(parsedTasks) || parsedTasks.length === 0) {
+        localStorage.setItem('adminTasks', JSON.stringify(initialTasks))
+        return initialTasks
+      }
+
+      return parsedTasks
+    } catch {
+      localStorage.setItem('adminTasks', JSON.stringify(initialTasks))
+      return initialTasks
+    }
+  })
+
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [priorityFilter, setPriorityFilter] = useState('All')
@@ -86,11 +108,13 @@ function AdminAllTasks() {
     navigate('/admin/tasks/create')
   }
 
-  const handleViewTask = () => {
+  const handleViewTask = (task) => {
+    localStorage.setItem('adminViewingTask', JSON.stringify(task))
     navigate('/admin/tasks/details')
   }
 
   const handleEditTask = (task) => {
+    localStorage.setItem('adminEditingTask', JSON.stringify(task))
     navigate('/admin/tasks/edit')
   }
 
@@ -100,7 +124,17 @@ function AdminAllTasks() {
 
   const confirmDeleteTask = () => {
     if (!taskToDelete) return
-    setTasks((currentTasks) => currentTasks.filter((item) => item.id !== taskToDelete.id))
+
+    setTasks((currentTasks) => {
+      const updatedTasks = currentTasks.filter(
+        (task) => task.id !== taskToDelete.id
+      )
+
+      localStorage.setItem('adminTasks', JSON.stringify(updatedTasks))
+
+      return updatedTasks
+    })
+
     setTaskToDelete(null)
   }
 
@@ -199,7 +233,7 @@ function AdminAllTasks() {
                 <div className="admin-task-actions">
                   <button
                     type="button"
-                    onClick={handleViewTask}
+                    onClick={() => handleViewTask(task)}
                   >
                     View
                   </button>
@@ -229,6 +263,7 @@ function AdminAllTasks() {
           )}
         </div>
       </div>
+
       <DeleteTaskModal
         isOpen={Boolean(taskToDelete)}
         taskTitle={taskToDelete?.title || ''}

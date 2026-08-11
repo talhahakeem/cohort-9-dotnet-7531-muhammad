@@ -1,8 +1,57 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import './AdminTaskDetails.css'
 
 function AdminTaskDetails() {
   const navigate = useNavigate()
+
+  const [task, setTask] = useState(null)
+
+  useEffect(() => {
+    try {
+      const storedTask = localStorage.getItem('adminViewingTask')
+
+      if (storedTask) {
+        setTask(JSON.parse(storedTask))
+      }
+    } catch {
+      setTask(null)
+    }
+  }, [])
+
+  if (!task) {
+    return (
+      <div className="admin-task-details-page">
+        <div className="admin-task-details-card">
+          <h2>Task not found</h2>
+          <p>The selected task could not be loaded.</p>
+
+          <button
+            type="button"
+            className="admin-details-back-button"
+            onClick={() => navigate('/admin/tasks')}
+          >
+            Back to All Tasks
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const statusClass = `status-${task.status
+    .toLowerCase()
+    .replace(/\s+/g, '-')}`
+
+  const priorityClass = `priority-${task.priority.toLowerCase()}`
+
+  const handleEdit = () => {
+    localStorage.setItem('adminEditingTask', JSON.stringify(task))
+    navigate('/admin/tasks/edit')
+  }
+
+  const handleBack = () => {
+    navigate('/admin/tasks')
+  }
 
   return (
     <div className="admin-task-details-page">
@@ -15,7 +64,7 @@ function AdminTaskDetails() {
         <button
           type="button"
           className="admin-details-back-button"
-          onClick={() => navigate('/admin/tasks')}
+          onClick={handleBack}
         >
           Back to All Tasks
         </button>
@@ -24,55 +73,54 @@ function AdminTaskDetails() {
       <div className="admin-task-details-card">
         <div className="admin-task-details-title-row">
           <div>
-            <h2>Complete project documentation</h2>
+            <h2>{task.title}</h2>
+
             <span className="admin-task-details-category">
-              Documentation
+              {task.category}
             </span>
           </div>
 
-          <span className="admin-details-status status-in-progress">
-            In Progress
+          <span className={`admin-details-status ${statusClass}`}>
+            {task.status}
           </span>
         </div>
 
         <div className="admin-task-details-description">
           <h3>Description</h3>
-          <p>
-            Prepare the technical documentation for the system.
-          </p>
+          <p>{task.description}</p>
         </div>
 
         <div className="admin-task-details-grid">
           <div className="admin-detail-item">
             <span>Assigned To</span>
-            <strong>Talha</strong>
+            <strong>{task.assignee}</strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Priority</span>
-            <strong className="admin-details-priority priority-high">
-              High
+            <strong className={`admin-details-priority ${priorityClass}`}>
+              {task.priority}
             </strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Category</span>
-            <strong>Documentation</strong>
+            <strong>{task.category}</strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Status</span>
-            <strong>In Progress</strong>
+            <strong>{task.status}</strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Due Date</span>
-            <strong>Aug 12, 2026</strong>
+            <strong>{task.dueDate}</strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Task ID</span>
-            <strong>#1</strong>
+            <strong>#{task.id}</strong>
           </div>
         </div>
 
@@ -80,7 +128,7 @@ function AdminTaskDetails() {
           <button
             type="button"
             className="admin-details-edit-button"
-            onClick={() => alert('Edit task')}
+            onClick={handleEdit}
           >
             Edit Task
           </button>
@@ -88,9 +136,9 @@ function AdminTaskDetails() {
           <button
             type="button"
             className="admin-details-delete-button"
-            onClick={() => alert('Delete task')}
+            onClick={handleBack}
           >
-            Delete Task
+            Back to Tasks
           </button>
         </div>
       </div>

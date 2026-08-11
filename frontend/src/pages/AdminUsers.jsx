@@ -41,7 +41,29 @@ const initialUsers = [
 function AdminUsers() {
   const navigate = useNavigate()
 
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState(() => {
+    try {
+      const storedUsers = localStorage.getItem('adminUsers')
+
+      if (!storedUsers) {
+        localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
+        return initialUsers
+      }
+
+      const parsedUsers = JSON.parse(storedUsers)
+
+      if (!Array.isArray(parsedUsers) || parsedUsers.length === 0) {
+        localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
+        return initialUsers
+      }
+
+      return parsedUsers
+    } catch {
+      localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
+      return initialUsers
+    }
+  })
+
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -63,6 +85,11 @@ function AdminUsers() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
+  const handleEditUser = (user) => {
+    localStorage.setItem('adminEditingUser', JSON.stringify(user))
+    navigate('/admin/users/edit')
+  }
+
   const handleDeleteUser = (user) => {
     setUserToDelete(user)
   }
@@ -70,9 +97,15 @@ function AdminUsers() {
   const confirmDeleteUser = () => {
     if (!userToDelete) return
 
-    setUsers((currentUsers) =>
-      currentUsers.filter((user) => user.id !== userToDelete.id)
-    )
+    setUsers((currentUsers) => {
+      const updatedUsers = currentUsers.filter(
+        (user) => user.id !== userToDelete.id
+      )
+
+      localStorage.setItem('adminUsers', JSON.stringify(updatedUsers))
+
+      return updatedUsers
+    })
 
     setUserToDelete(null)
   }
@@ -178,14 +211,14 @@ function AdminUsers() {
                 <div className="user-actions">
                   <button
                     type="button"
-                    onClick={() => alert(`View ${user.name}`)}
+                    onClick={() => { localStorage.setItem('adminViewingUser', JSON.stringify(user)); navigate('/admin/users/details') }}
                   >
                     View
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => alert(`Edit ${user.name}`)}
+                    onClick={() => handleEditUser(user)}
                   >
                     Edit
                   </button>
