@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import DeleteUserModal from '../components/dashboard/DeleteUserModal'
 import './AdminUsers.css'
 
 const initialUsers = [
@@ -39,10 +40,12 @@ const initialUsers = [
 
 function AdminUsers() {
   const navigate = useNavigate()
-  const [users] = useState(initialUsers)
+
+  const [users, setUsers] = useState(initialUsers)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [userToDelete, setUserToDelete] = useState(null)
 
   const filteredUsers = users.filter((user) => {
     const search = searchTerm.toLowerCase()
@@ -59,6 +62,24 @@ function AdminUsers() {
 
     return matchesSearch && matchesRole && matchesStatus
   })
+
+  const handleDeleteUser = (user) => {
+    setUserToDelete(user)
+  }
+
+  const confirmDeleteUser = () => {
+    if (!userToDelete) return
+
+    setUsers((currentUsers) =>
+      currentUsers.filter((user) => user.id !== userToDelete.id)
+    )
+
+    setUserToDelete(null)
+  }
+
+  const cancelDeleteUser = () => {
+    setUserToDelete(null)
+  }
 
   return (
     <div className="admin-users-page">
@@ -172,7 +193,7 @@ function AdminUsers() {
                   <button
                     type="button"
                     className="delete-user-button"
-                    onClick={() => alert(`Delete ${user.name}`)}
+                    onClick={() => handleDeleteUser(user)}
                   >
                     Delete
                   </button>
@@ -187,6 +208,13 @@ function AdminUsers() {
           )}
         </div>
       </div>
+
+      <DeleteUserModal
+        isOpen={Boolean(userToDelete)}
+        userName={userToDelete?.name || ''}
+        onCancel={cancelDeleteUser}
+        onConfirm={confirmDeleteUser}
+      />
     </div>
   )
 }
