@@ -1,7 +1,7 @@
-﻿namespace TaskManagement.Application.DTOs.Tasks;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using TaskManagement.Domain.Enums;
+
+namespace TaskManagement.Application.DTOs.Tasks;
 
 public class CreateTaskRequest
 {
@@ -25,6 +25,5 @@ public class CreateTaskRequest
     [Required]
     public TaskPriority Priority { get; set; }
 
-    // Optional - Admin kisi user ko assign kar sakta hai
     public string? AssignedUserId { get; set; }
 }
