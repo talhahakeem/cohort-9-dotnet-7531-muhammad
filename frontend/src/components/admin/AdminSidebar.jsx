@@ -1,8 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { clearAuthSession } from '../../utils/auth'
 import './AdminSidebar.css'
 
 function AdminSidebar() {
   const navigate = useNavigate()
+
+  const handleLogout = () => {
+    clearAuthSession()
+    navigate('/login')
+  }
 
   return (
     <aside className="admin-sidebar">
@@ -65,7 +71,7 @@ function AdminSidebar() {
         <button
           type="button"
           className="admin-logout-button"
-          onClick={() => navigate('/login')}
+          onClick={handleLogout}
         >
           Logout
         </button>

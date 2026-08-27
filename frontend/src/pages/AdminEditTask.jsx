@@ -1,12 +1,88 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import './AdminEditTask.css'
+import { taskApi } from '../api/api'
 
 function AdminEditTask() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const taskId = location.state?.taskId
 
-  const handleSubmit = (event) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    priority: 'Medium',
+    status: 'InProgress',
+    dueDate: '',
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    const fetchTask = async () => {
+      if (!taskId) {
+        setError('No task selected.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const task = await taskApi.getById(taskId)
+        setFormData({
+          title: task.title || '',
+          description: task.description || '',
+          category: task.category || '',
+          priority: task.priority || 'Medium',
+          status: task.status || 'InProgress',
+          dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
+        })
+      } catch (err) {
+        setError(err.message || 'Unable to load task.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTask()
+  }, [taskId])
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    navigate('/admin/tasks')
+    setError('')
+
+    try {
+      setSubmitting(true)
+      await taskApi.update(taskId, {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        status: formData.status,
+        dueDate: new Date(formData.dueDate).toISOString(),
+      })
+      navigate('/admin/tasks', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Unable to update task.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="admin-edit-task-page">
+        <div className="admin-edit-task-header">
+          <h1>Loading task...</h1>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -26,13 +102,17 @@ function AdminEditTask() {
         </button>
       </div>
 
+      {error && <div className="error-banner">{error}</div>}
+
       <form className="admin-edit-task-card" onSubmit={handleSubmit}>
         <div className="admin-edit-form-group">
           <label htmlFor="admin-task-title">Task Title</label>
           <input
             id="admin-task-title"
+            name="title"
             type="text"
-            defaultValue="Complete project documentation"
+            value={formData.title}
+            onChange={handleChange}
             required
           />
         </div>
@@ -41,63 +121,60 @@ function AdminEditTask() {
           <label htmlFor="admin-task-description">Description</label>
           <textarea
             id="admin-task-description"
+            name="description"
             rows="5"
-            defaultValue="Prepare the technical documentation for the system."
+            value={formData.description}
+            onChange={handleChange}
             required
           />
         </div>
 
         <div className="admin-edit-form-row">
           <div className="admin-edit-form-group">
-            <label htmlFor="admin-task-assignee">Assigned To</label>
-            <select id="admin-task-assignee" defaultValue="Talha">
-              <option value="Talha">Talha</option>
-              <option value="Ali Khan">Ali Khan</option>
-              <option value="Ahmed">Ahmed</option>
-            </select>
-          </div>
-
-          <div className="admin-edit-form-group">
             <label htmlFor="admin-task-category">Category</label>
-            <select id="admin-task-category" defaultValue="Documentation">
+            <select id="admin-task-category" name="category" value={formData.category} onChange={handleChange}>
+              <option value="">Select category</option>
               <option value="Development">Development</option>
               <option value="Design">Design</option>
               <option value="Testing">Testing</option>
               <option value="Documentation">Documentation</option>
               <option value="Frontend">Frontend</option>
               <option value="Backend">Backend</option>
+              <option value="Meeting">Meeting</option>
+            </select>
+          </div>
+
+          <div className="admin-edit-form-group">
+            <label htmlFor="admin-task-priority">Priority</label>
+            <select id="admin-task-priority" name="priority" value={formData.priority} onChange={handleChange}>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
             </select>
           </div>
         </div>
 
         <div className="admin-edit-form-row">
           <div className="admin-edit-form-group">
-            <label htmlFor="admin-task-priority">Priority</label>
-            <select id="admin-task-priority" defaultValue="High">
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
+            <label htmlFor="admin-task-status">Status</label>
+            <select id="admin-task-status" name="status" value={formData.status} onChange={handleChange}>
+              <option value="Pending">Pending</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
             </select>
           </div>
 
           <div className="admin-edit-form-group">
-            <label htmlFor="admin-task-status">Status</label>
-            <select id="admin-task-status" defaultValue="In Progress">
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
+            <label htmlFor="admin-task-due-date">Due Date</label>
+            <input
+              id="admin-task-due-date"
+              name="dueDate"
+              type="date"
+              value={formData.dueDate}
+              onChange={handleChange}
+              required
+            />
           </div>
-        </div>
-
-        <div className="admin-edit-form-group">
-          <label htmlFor="admin-task-due-date">Due Date</label>
-          <input
-            id="admin-task-due-date"
-            type="date"
-            defaultValue="2026-08-12"
-            required
-          />
         </div>
 
         <div className="admin-edit-task-actions">
@@ -109,8 +186,8 @@ function AdminEditTask() {
             Cancel
           </button>
 
-          <button type="submit" className="admin-edit-save-button">
-            Save Changes
+          <button type="submit" className="admin-edit-save-button" disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

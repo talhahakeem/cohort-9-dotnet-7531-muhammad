@@ -1,6 +1,23 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { clearAuthSession, getCurrentUser } from '../../utils/auth'
 
 function Sidebar() {
+  const navigate = useNavigate()
+  const currentUser = getCurrentUser()
+  const displayName =
+    currentUser?.name ||
+    currentUser?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+    'User'
+  const role =
+    currentUser?.role ||
+    currentUser?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+    'User'
+
+  const logout = () => {
+    clearAuthSession()
+    navigate('/login')
+  }
+
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -27,12 +44,16 @@ function Sidebar() {
 
       <div className="sidebar-bottom">
         <div className="user-mini">
-          <div className="avatar">T</div>
+          <div className="avatar">{displayName.charAt(0).toUpperCase()}</div>
           <div>
-            <strong>Talha</strong>
-            <small>Regular User</small>
+            <strong>{displayName}</strong>
+            <small>{role}</small>
           </div>
         </div>
+
+        <button type="button" className="logout-button" onClick={logout}>
+          Logout
+        </button>
       </div>
     </aside>
   )

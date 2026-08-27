@@ -1,30 +1,61 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import './AdminTaskDetails.css'
+import { taskApi } from '../api/api'
+
+const normalizeStatus = (value) => {
+  if (!value) return 'Pending'
+  return value.replace(/([a-z])([A-Z])/g, '$1 $2')
+}
 
 function AdminTaskDetails() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const taskId = location.state?.taskId
 
   const [task, setTask] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    try {
-      const storedTask = localStorage.getItem('adminViewingTask')
-
-      if (storedTask) {
-        setTask(JSON.parse(storedTask))
+    const fetchTask = async () => {
+      if (!taskId) {
+        setLoading(false)
+        setError('No task selected.')
+        return
       }
-    } catch {
-      setTask(null)
-    }
-  }, [])
 
-  if (!task) {
+      try {
+        setLoading(true)
+        setError('')
+        const data = await taskApi.getById(taskId)
+        setTask(data)
+      } catch (err) {
+        setError(err.message || 'Unable to load task details.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTask()
+  }, [taskId])
+
+  if (loading) {
+    return (
+      <div className="admin-task-details-page">
+        <div className="admin-task-details-card">
+          <h2>Loading task...</h2>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !task) {
     return (
       <div className="admin-task-details-page">
         <div className="admin-task-details-card">
           <h2>Task not found</h2>
-          <p>The selected task could not be loaded.</p>
+          <p>{error || 'The selected task could not be loaded.'}</p>
 
           <button
             type="button"
@@ -38,15 +69,11 @@ function AdminTaskDetails() {
     )
   }
 
-  const statusClass = `status-${task.status
-    .toLowerCase()
-    .replace(/\s+/g, '-')}`
-
-  const priorityClass = `priority-${task.priority.toLowerCase()}`
+  const statusClass = `status-${normalizeStatus(task.status).toLowerCase().replace(/\s+/g, '-')}`
+  const priorityClass = `priority-${task.priority?.toLowerCase()}`
 
   const handleEdit = () => {
-    localStorage.setItem('adminEditingTask', JSON.stringify(task))
-    navigate('/admin/tasks/edit')
+    navigate('/admin/tasks/edit', { state: { taskId: task.id } })
   }
 
   const handleBack = () => {
@@ -81,21 +108,16 @@ function AdminTaskDetails() {
           </div>
 
           <span className={`admin-details-status ${statusClass}`}>
-            {task.status}
+            {normalizeStatus(task.status)}
           </span>
         </div>
 
         <div className="admin-task-details-description">
           <h3>Description</h3>
-          <p>{task.description}</p>
+          <p>{task.description || 'No description provided.'}</p>
         </div>
 
         <div className="admin-task-details-grid">
-          <div className="admin-detail-item">
-            <span>Assigned To</span>
-            <strong>{task.assignee}</strong>
-          </div>
-
           <div className="admin-detail-item">
             <span>Priority</span>
             <strong className={`admin-details-priority ${priorityClass}`}>
@@ -110,12 +132,12 @@ function AdminTaskDetails() {
 
           <div className="admin-detail-item">
             <span>Status</span>
-            <strong>{task.status}</strong>
+            <strong>{normalizeStatus(task.status)}</strong>
           </div>
 
           <div className="admin-detail-item">
             <span>Due Date</span>
-            <strong>{task.dueDate}</strong>
+            <strong>{new Date(task.dueDate).toLocaleDateString()}</strong>
           </div>
 
           <div className="admin-detail-item">

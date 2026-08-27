@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout'
 import DashboardLayout from '../layouts/DashboardLayout'
 import AdminLayout from '../layouts/AdminLayout'
+import ProtectedRoute from './ProtectedRoute'
 
 import Login from '../pages/Login'
 import Register from '../pages/Register'
@@ -23,34 +24,34 @@ import AdminUserDetails from '../pages/AdminUserDetails'
 function AppRoutes() {
   return (
     <Routes>
-      {/* Authentication */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* User Dashboard */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/tasks" element={<MyTasks />} />
-        <Route path="/tasks/create" element={<CreateTask />} />
-        <Route path="/tasks/details" element={<TaskDetails />} />
-        <Route path="/tasks/edit" element={<EditTask />} />
+      <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tasks" element={<MyTasks />} />
+          <Route path="/tasks/create" element={<CreateTask />} />
+          <Route path="/tasks/details" element={<TaskDetails />} />
+          <Route path="/tasks/edit" element={<EditTask />} />
+        </Route>
       </Route>
 
-      {/* Admin Dashboard */}
-      <Route element={<AdminLayout />}>
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/users/edit" element={<AdminEditUser />} />
-        <Route path="/admin/users/details" element={<AdminUserDetails />} />
-        <Route path="/admin/tasks" element={<AdminAllTasks />} />
-        <Route path="/admin/tasks/create" element={<AdminCreateTask />} />
-        <Route path="/admin/tasks/details" element={<AdminTaskDetails />} />
-<Route path="/admin/tasks/edit" element={<AdminEditTask />} />
+      <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/edit" element={<AdminEditUser />} />
+          <Route path="/admin/users/details" element={<AdminUserDetails />} />
+          <Route path="/admin/tasks" element={<AdminAllTasks />} />
+          <Route path="/admin/tasks/create" element={<AdminCreateTask />} />
+          <Route path="/admin/tasks/details" element={<AdminTaskDetails />} />
+          <Route path="/admin/tasks/edit" element={<AdminEditTask />} />
+        </Route>
       </Route>
 
-      {/* Default */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

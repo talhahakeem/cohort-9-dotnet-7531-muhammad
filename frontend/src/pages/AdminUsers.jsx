@@ -1,113 +1,67 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { adminUserApi } from '../api/api'
 import DeleteUserModal from '../components/dashboard/DeleteUserModal'
 import './AdminUsers.css'
 
-const initialUsers = [
-  {
-    id: 1,
-    name: 'Talha',
-    email: 'talha@example.com',
-    role: 'Regular User',
-    status: 'Active',
-    tasks: 8,
-  },
-  {
-    id: 2,
-    name: 'Ali Khan',
-    email: 'ali@example.com',
-    role: 'Regular User',
-    status: 'Active',
-    tasks: 12,
-  },
-  {
-    id: 3,
-    name: 'Ahmed',
-    email: 'ahmed@example.com',
-    role: 'Regular User',
-    status: 'Inactive',
-    tasks: 5,
-  },
-  {
-    id: 4,
-    name: 'Admin',
-    email: 'admin@example.com',
-    role: 'Administrator',
-    status: 'Active',
-    tasks: 20,
-  },
-]
-
 function AdminUsers() {
   const navigate = useNavigate()
-
-  const [users, setUsers] = useState(() => {
-    try {
-      const storedUsers = localStorage.getItem('adminUsers')
-
-      if (!storedUsers) {
-        localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
-        return initialUsers
-      }
-
-      const parsedUsers = JSON.parse(storedUsers)
-
-      if (!Array.isArray(parsedUsers) || parsedUsers.length === 0) {
-        localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
-        return initialUsers
-      }
-
-      return parsedUsers
-    } catch {
-      localStorage.setItem('adminUsers', JSON.stringify(initialUsers))
-      return initialUsers
-    }
-  })
-
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
   const [userToDelete, setUserToDelete] = useState(null)
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const response = await adminUserApi.getAll()
+        setUsers(Array.isArray(response) ? response : [])
+      } catch (err) {
+        setError(err.message || 'Unable to load users.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
   const filteredUsers = users.filter((user) => {
     const search = searchTerm.toLowerCase()
-
+    const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim().toLowerCase()
     const matchesSearch =
-      user.name.toLowerCase().includes(search) ||
-      user.email.toLowerCase().includes(search)
+      fullName.includes(search) || (user.email || '').toLowerCase().includes(search)
 
-    const matchesRole =
-      roleFilter === 'All' || user.role === roleFilter
-
-    const matchesStatus =
-      statusFilter === 'All' || user.status === statusFilter
+    const matchesRole = roleFilter === 'All' || user.role === roleFilter
+    const matchesStatus = statusFilter === 'All' || user.status === statusFilter
 
     return matchesSearch && matchesRole && matchesStatus
   })
 
   const handleEditUser = (user) => {
-    localStorage.setItem('adminEditingUser', JSON.stringify(user))
-    navigate('/admin/users/edit')
+    navigate('/admin/users/edit', { state: { user } })
   }
 
   const handleDeleteUser = (user) => {
     setUserToDelete(user)
   }
 
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
     if (!userToDelete) return
 
-    setUsers((currentUsers) => {
-      const updatedUsers = currentUsers.filter(
-        (user) => user.id !== userToDelete.id
-      )
-
-      localStorage.setItem('adminUsers', JSON.stringify(updatedUsers))
-
-      return updatedUsers
-    })
-
-    setUserToDelete(null)
+    try {
+      await adminUserApi.delete(userToDelete.id)
+      setUsers((currentUsers) => currentUsers.filter((user) => user.id !== userToDelete.id))
+      setUserToDelete(null)
+    } catch (err) {
+      setError(err.message || 'Unable to delete user.')
+      setUserToDelete(null)
+    }
   }
 
   const cancelDeleteUser = () => {
@@ -144,8 +98,8 @@ function AdminUsers() {
           onChange={(event) => setRoleFilter(event.target.value)}
         >
           <option value="All">All Roles</option>
-          <option value="Administrator">Administrator</option>
-          <option value="Regular User">Regular User</option>
+          <option value="Admin">Admin</option>
+          <option value="User">User</option>
         </select>
 
         <select
@@ -158,9 +112,10 @@ function AdminUsers() {
         </select>
       </div>
 
+      {error && <div className="error-banner">{error}</div>}
+
       <div className="admin-users-summary">
-        Showing <strong>{filteredUsers.length}</strong> of{' '}
-        <strong>{users.length}</strong> users
+        Showing <strong>{filteredUsers.length}</strong> of <strong>{users.length}</strong> users
       </div>
 
       <div className="admin-users-table-card">
@@ -174,65 +129,62 @@ function AdminUsers() {
             <span>Actions</span>
           </div>
 
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <div className="admin-users-row" key={user.id}>
-                <div className="user-name">
-                  <div className="user-avatar">
-                    {user.name.charAt(0).toUpperCase()}
+          {loading ? (
+            <div className="no-users">
+              <h3>Loading users...</h3>
+            </div>
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => {
+              const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || 'Unknown User'
+
+              return (
+                <div className="admin-users-row" key={user.id}>
+                  <div className="user-name">
+                    <div className="user-avatar">
+                      {fullName.charAt(0).toUpperCase()}
+                    </div>
+                    <strong>{fullName}</strong>
                   </div>
-                  <strong>{user.name}</strong>
+
+                  <span>{user.email}</span>
+
+                  <span
+                    className={`role-badge ${user.role === 'Admin' ? 'role-admin' : 'role-user'}`}
+                  >
+                    {user.role}
+                  </span>
+
+                  <span
+                    className={`status-badge ${user.status === 'Active' ? 'user-active' : 'user-inactive'}`}
+                  >
+                    {user.status}
+                  </span>
+
+                  <span>{user.taskCount ?? 0}</span>
+
+                  <div className="user-actions">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/admin/users/details', { state: { user } })}
+                    >
+                      View
+                    </button>
+
+                    <button type="button" onClick={() => handleEditUser(user)}>
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete-user-button"
+                      onClick={() => handleDeleteUser(user)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-
-                <span>{user.email}</span>
-
-                <span
-                  className={`role-badge ${
-                    user.role === 'Administrator'
-                      ? 'role-admin'
-                      : 'role-user'
-                  }`}
-                >
-                  {user.role}
-                </span>
-
-                <span
-                  className={`status-badge ${
-                    user.status === 'Active'
-                      ? 'user-active'
-                      : 'user-inactive'
-                  }`}
-                >
-                  {user.status}
-                </span>
-
-                <span>{user.tasks}</span>
-
-                <div className="user-actions">
-                  <button
-                    type="button"
-                    onClick={() => { localStorage.setItem('adminViewingUser', JSON.stringify(user)); navigate('/admin/users/details') }}
-                  >
-                    View
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    type="button"
-                    className="delete-user-button"
-                    onClick={() => handleDeleteUser(user)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
+              )
+            })
           ) : (
             <div className="no-users">
               <h3>No users found</h3>
@@ -244,7 +196,7 @@ function AdminUsers() {
 
       <DeleteUserModal
         isOpen={Boolean(userToDelete)}
-        userName={userToDelete?.name || ''}
+        userName={userToDelete ? `${userToDelete.firstName ?? ''} ${userToDelete.lastName ?? ''}`.trim() : ''}
         onCancel={cancelDeleteUser}
         onConfirm={confirmDeleteUser}
       />

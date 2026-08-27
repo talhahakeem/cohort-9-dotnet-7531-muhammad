@@ -15,4 +15,14 @@ obj/
 # VS Code
 .vscode/
 
+Logs/
+
+*.log
+
+bin/
+
+obj/
+
+.vs/
+
 backend/TaskManagementSystem/.sonarqube/

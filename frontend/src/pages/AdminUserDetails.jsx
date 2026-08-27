@@ -1,28 +1,66 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { adminUserApi } from '../api/api'
 import './AdminUserDetails.css'
 
 function AdminUserDetails() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [user, setUser] = useState(location.state?.user || null)
+  const [loading, setLoading] = useState(!location.state?.user)
+  const [error, setError] = useState('')
 
-  const storedUser = localStorage.getItem('adminViewingUser')
-  const user = storedUser ? JSON.parse(storedUser) : null
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = location.state?.user?.id
+      if (!userId) {
+        setLoading(false)
+        setError('No user selected.')
+        return
+      }
 
-  if (!user) {
+      try {
+        setLoading(true)
+        setError('')
+        const response = await adminUserApi.getById(userId)
+        setUser(response)
+      } catch (err) {
+        setError(err.message || 'Unable to load this user.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (!location.state?.user) {
+      fetchUser()
+    }
+  }, [location.state])
+
+  if (loading) {
+    return (
+      <div className="admin-user-details-page">
+        <div className="admin-user-details-card">
+          <h1>Loading User...</h1>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !user) {
     return (
       <div className="admin-user-details-page">
         <div className="admin-user-details-card">
           <h1>User Not Found</h1>
-          <p>The selected user could not be found.</p>
-          <button
-            type="button"
-            onClick={() => navigate('/admin/users')}
-          >
+          <p>{error || 'The selected user could not be found.'}</p>
+          <button type="button" onClick={() => navigate('/admin/users')}>
             Back to Users
           </button>
         </div>
       </div>
     )
   }
+
+  const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || 'Unknown User'
 
   return (
     <div className="admin-user-details-page">
@@ -43,12 +81,10 @@ function AdminUserDetails() {
         </div>
 
         <div className="admin-user-profile">
-          <div className="admin-user-details-avatar">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
+          <div className="admin-user-details-avatar">{fullName.charAt(0).toUpperCase()}</div>
 
           <div>
-            <h2>{user.name}</h2>
+            <h2>{fullName}</h2>
             <p>{user.email}</p>
           </div>
         </div>
@@ -56,7 +92,7 @@ function AdminUserDetails() {
         <div className="admin-user-details-grid">
           <div className="admin-user-detail-item">
             <span>Full Name</span>
-            <strong>{user.name}</strong>
+            <strong>{fullName}</strong>
           </div>
 
           <div className="admin-user-detail-item">
@@ -76,7 +112,7 @@ function AdminUserDetails() {
 
           <div className="admin-user-detail-item">
             <span>Total Tasks</span>
-            <strong>{user.tasks}</strong>
+            <strong>{user.taskCount ?? 0}</strong>
           </div>
 
           <div className="admin-user-detail-item">
@@ -89,7 +125,7 @@ function AdminUserDetails() {
           <button
             type="button"
             className="admin-user-details-edit-button"
-            onClick={() => navigate('/admin/users/edit')}
+            onClick={() => navigate('/admin/users/edit', { state: { user } })}
           >
             Edit User
           </button>

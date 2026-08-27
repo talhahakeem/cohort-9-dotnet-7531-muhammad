@@ -1,13 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './AdminCreateTask.css'
-
-const users = [
-  'Talha',
-  'Ali Khan',
-  'Ahmed',
-  'Sara Ahmed',
-]
+import { taskApi } from '../api/api'
 
 function AdminCreateTask() {
   const navigate = useNavigate()
@@ -15,12 +9,13 @@ function AdminCreateTask() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    assignee: '',
     category: '',
     priority: 'Medium',
     status: 'Pending',
     dueDate: '',
   })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -31,12 +26,26 @@ function AdminCreateTask() {
     }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
 
-    alert(`Task "${formData.title}" created successfully.`)
-
-    navigate('/admin/tasks')
+    try {
+      setLoading(true)
+      await taskApi.create({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        status: formData.status,
+        dueDate: new Date(formData.dueDate).toISOString(),
+      })
+      navigate('/admin/tasks')
+    } catch (err) {
+      setError(err.message || 'Unable to create task.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -44,7 +53,7 @@ function AdminCreateTask() {
       <div className="admin-create-task-header">
         <div>
           <h1>Create Task</h1>
-          <p>Create and assign a new task to a user.</p>
+          <p>Create a new task for the system.</p>
         </div>
 
         <button
@@ -56,10 +65,7 @@ function AdminCreateTask() {
         </button>
       </div>
 
-      <form
-        className="admin-create-task-card"
-        onSubmit={handleSubmit}
-      >
+      <form className="admin-create-task-card" onSubmit={handleSubmit}>
         <div className="admin-form-group">
           <label htmlFor="title">Task Title</label>
           <input
@@ -88,25 +94,6 @@ function AdminCreateTask() {
 
         <div className="admin-form-row">
           <div className="admin-form-group">
-            <label htmlFor="assignee">Assign To</label>
-            <select
-              id="assignee"
-              name="assignee"
-              value={formData.assignee}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select user</option>
-
-              {users.map((user) => (
-                <option value={user} key={user}>
-                  {user}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="admin-form-group">
             <label htmlFor="category">Category</label>
             <select
               id="category"
@@ -124,9 +111,7 @@ function AdminCreateTask() {
               <option value="Backend">Backend</option>
             </select>
           </div>
-        </div>
 
-        <div className="admin-form-row">
           <div className="admin-form-group">
             <label htmlFor="priority">Priority</label>
             <select
@@ -140,7 +125,9 @@ function AdminCreateTask() {
               <option value="High">High</option>
             </select>
           </div>
+        </div>
 
+        <div className="admin-form-row">
           <div className="admin-form-group">
             <label htmlFor="status">Status</label>
             <select
@@ -150,39 +137,29 @@ function AdminCreateTask() {
               onChange={handleChange}
             >
               <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
+              <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
           </div>
+
+          <div className="admin-form-group">
+            <label htmlFor="dueDate">Due Date</label>
+            <input
+              id="dueDate"
+              name="dueDate"
+              type="date"
+              value={formData.dueDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
-        <div className="admin-form-group">
-          <label htmlFor="dueDate">Due Date</label>
-          <input
-            id="dueDate"
-            name="dueDate"
-            type="date"
-            value={formData.dueDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {error && <p role="alert" style={{ color: '#dc2626' }}>{error}</p>}
 
         <div className="admin-create-task-actions">
-          <button
-            type="button"
-            className="admin-cancel-button"
-            onClick={() => navigate('/admin/tasks')}
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            className="admin-submit-button"
-          >
-            Create Task
-          </button>
+          <button type="button" className="admin-cancel-button" onClick={() => navigate('/admin/tasks')}>Cancel</button>
+          <button type="submit" className="admin-submit-button" disabled={loading}>{loading ? 'Creating...' : 'Create Task'}</button>
         </div>
       </form>
     </div>

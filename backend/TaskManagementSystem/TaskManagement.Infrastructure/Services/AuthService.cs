@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 namespace TaskManagement.Infrastructure.Services;
+
 using System.Security.Claims;
 
 public class AuthService : IAuthService
@@ -25,15 +26,58 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<bool> RegisterAsync(RegisterRequest request)
+    public async Task<AuthResult> RegisterAsync(RegisterRequest request)
     {
+        var passwordErrors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            passwordErrors.Add("Password is required.");
+        }
+        else
+        {
+            if (request.Password.Length < 8)
+            {
+                passwordErrors.Add("Password must be at least 8 characters long.");
+            }
+
+            if (!request.Password.Any(char.IsUpper))
+            {
+                passwordErrors.Add("Password must contain at least one uppercase letter.");
+            }
+
+            if (!request.Password.Any(char.IsLower))
+            {
+                passwordErrors.Add("Password must contain at least one lowercase letter.");
+            }
+
+            if (!request.Password.Any(char.IsDigit))
+            {
+                passwordErrors.Add("Password must contain at least one number.");
+            }
+
+            if (!request.Password.Any(ch => !char.IsLetterOrDigit(ch)))
+            {
+                passwordErrors.Add("Password must contain at least one special character.");
+            }
+        }
+
+        if (passwordErrors.Count > 0)
+        {
+            return AuthResult.Failure(passwordErrors.ToArray());
+        }
+
         if (request.Password != request.ConfirmPassword)
-            return false;
+        {
+            return AuthResult.Failure("Passwords do not match.");
+        }
 
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
 
         if (existingUser != null)
-            return false;
+        {
+            return AuthResult.Failure("An account with this email already exists.");
+        }
 
         var user = new ApplicationUser
         {
@@ -47,12 +91,28 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            return false;
+            var errors = result.Errors
+                .Select(error => error.Description)
+                .Where(description => !string.IsNullOrWhiteSpace(description))
+                .ToList();
+
+            return AuthResult.Failure(errors.ToArray());
         }
 
-        await _userManager.AddToRoleAsync(user, "User");
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
 
-        return true;
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            var errors = roleResult.Errors
+                .Select(error => error.Description)
+                .Where(description => !string.IsNullOrWhiteSpace(description))
+                .ToList();
+
+            return AuthResult.Failure(errors.ToArray());
+        }
+
+        return AuthResult.Success();
     }
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request)
@@ -85,6 +145,7 @@ public class AuthService : IAuthService
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("role", role));
         }
 
         var key = new SymmetricSecurityKey(

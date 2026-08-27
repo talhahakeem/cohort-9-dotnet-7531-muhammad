@@ -1,14 +1,79 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import './EditTask.css'
+import { taskApi } from '../api/api'
 
 function EditTask() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const taskId = location.state?.taskId
 
-  const handleSubmit = (event) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    priority: 'Medium',
+    status: 'Pending',
+    dueDate: '',
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchTask = async () => {
+      if (!taskId) {
+        setError('No task selected.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const task = await taskApi.getById(taskId)
+        setFormData({
+          title: task.title || '',
+          description: task.description || '',
+          category: task.category || '',
+          priority: task.priority || 'Medium',
+          status: task.status || 'Pending',
+          dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
+        })
+      } catch (err) {
+        setError(err.message || 'Unable to load task.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTask()
+  }, [taskId])
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
 
-    // Backend integration baad mein add karenge.
-    navigate('/tasks/details')
+    try {
+      await taskApi.update(taskId, {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        status: formData.status,
+        dueDate: new Date(formData.dueDate).toISOString(),
+      })
+
+      navigate('/tasks', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Unable to update task.')
+    }
+  }
+
+  if (loading) {
+    return <div className="edit-task-page"><div className="edit-task-card"><h2>Loading task...</h2></div></div>
   }
 
   return (
@@ -23,9 +88,9 @@ function EditTask() {
         <button
           type="button"
           className="back-button"
-          onClick={() => navigate('/tasks/details')}
+          onClick={() => navigate('/tasks')}
         >
-          Back to Task
+          Back to Tasks
         </button>
       </div>
 
@@ -34,8 +99,10 @@ function EditTask() {
           <label htmlFor="title">Task Title</label>
           <input
             id="title"
+            name="title"
             type="text"
-            defaultValue="Implement authentication"
+            value={formData.title}
+            onChange={handleChange}
             placeholder="Enter task title"
             required
           />
@@ -45,8 +112,10 @@ function EditTask() {
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
+            name="description"
             rows="5"
-            defaultValue="Implement user authentication and authorization for the Task Management System."
+            value={formData.description}
+            onChange={handleChange}
             placeholder="Enter task description"
             required
           />
@@ -55,17 +124,18 @@ function EditTask() {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="category">Category</label>
-            <select id="category" defaultValue="Development">
+            <select id="category" name="category" value={formData.category} onChange={handleChange}>
               <option value="Development">Development</option>
               <option value="Design">Design</option>
               <option value="Testing">Testing</option>
               <option value="Documentation">Documentation</option>
+              <option value="Meeting">Meeting</option>
             </select>
           </div>
 
           <div className="form-group">
             <label htmlFor="priority">Priority</label>
-            <select id="priority" defaultValue="High">
+            <select id="priority" name="priority" value={formData.priority} onChange={handleChange}>
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
               <option value="High">High</option>
@@ -76,9 +146,9 @@ function EditTask() {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="status">Status</label>
-            <select id="status" defaultValue="In Progress">
+            <select id="status" name="status" value={formData.status} onChange={handleChange}>
               <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
+              <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
           </div>
@@ -87,18 +157,22 @@ function EditTask() {
             <label htmlFor="dueDate">Due Date</label>
             <input
               id="dueDate"
+              name="dueDate"
               type="date"
-              defaultValue="2026-08-15"
+              value={formData.dueDate}
+              onChange={handleChange}
               required
             />
           </div>
         </div>
 
+        {error && <p role="alert" style={{ color: '#dc2626' }}>{error}</p>}
+
         <div className="edit-task-actions">
           <button
             type="button"
             className="cancel-button"
-            onClick={() => navigate('/tasks/details')}
+            onClick={() => navigate('/tasks')}
           >
             Cancel
           </button>

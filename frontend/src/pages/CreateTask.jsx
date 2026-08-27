@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './CreateTask.css'
+import { taskApi } from '../api/api'
 
 function CreateTask() {
   const navigate = useNavigate()
@@ -10,8 +11,11 @@ function CreateTask() {
     description: '',
     category: '',
     priority: 'Medium',
+    status: 'Pending',
     dueDate: '',
   })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -22,12 +26,27 @@ function CreateTask() {
     }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
 
-    console.log('Task data:', formData)
+    try {
+      setLoading(true)
+      await taskApi.create({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        status: formData.status,
+        dueDate: new Date(formData.dueDate).toISOString(),
+      })
 
-    navigate('/tasks')
+      navigate('/tasks')
+    } catch (err) {
+      setError(err.message || 'Unable to create task.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -70,6 +89,7 @@ function CreateTask() {
             placeholder="Describe the task..."
             value={formData.description}
             onChange={handleChange}
+            required
           />
         </div>
 
@@ -107,16 +127,33 @@ function CreateTask() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="dueDate">Due Date</label>
-            <input
-              id="dueDate"
-              name="dueDate"
-              type="date"
-              value={formData.dueDate}
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
               onChange={handleChange}
-            />
+            >
+              <option value="Pending">Pending</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
           </div>
         </div>
+
+        <div className="form-group">
+          <label htmlFor="dueDate">Due Date</label>
+          <input
+            id="dueDate"
+            name="dueDate"
+            type="date"
+            value={formData.dueDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {error && <p role="alert" style={{ color: '#dc2626' }}>{error}</p>}
 
         <div className="form-actions">
           <button
@@ -127,8 +164,8 @@ function CreateTask() {
             Cancel
           </button>
 
-          <button type="submit" className="submit-button">
-            Create Task
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Task'}
           </button>
         </div>
       </form>
