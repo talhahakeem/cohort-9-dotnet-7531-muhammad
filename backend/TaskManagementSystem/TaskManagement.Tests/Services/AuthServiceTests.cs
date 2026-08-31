@@ -75,7 +75,7 @@ public class AuthServiceTests
         var result = await _authService.RegisterAsync(request);
 
         // Assert
-        Assert.False(result);
+        Assert.False(result.Succeeded);
 
         _userManagerMock.Verify(
             x => x.FindByEmailAsync(It.IsAny<string>()),
@@ -110,7 +110,7 @@ public class AuthServiceTests
         var result = await _authService.RegisterAsync(request);
 
         // Assert
-        Assert.False(result);
+        Assert.False(result.Succeeded);
 
         _userManagerMock.Verify(
             x => x.CreateAsync(
@@ -150,7 +150,7 @@ public class AuthServiceTests
         var result = await _authService.RegisterAsync(request);
 
         // Assert
-        Assert.False(result);
+        Assert.False(result.Succeeded);
 
         _userManagerMock.Verify(
             x => x.AddToRoleAsync(
@@ -192,7 +192,7 @@ public class AuthServiceTests
         var result = await _authService.RegisterAsync(request);
 
         // Assert
-        Assert.True(result);
+        Assert.True(result.Succeeded);
 
         _userManagerMock.Verify(
             x => x.CreateAsync(
