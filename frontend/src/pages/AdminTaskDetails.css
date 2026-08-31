@@ -1,0 +1,214 @@
+.admin-task-details-page {
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.admin-task-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.admin-task-details-header h1 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 32px;
+}
+
+.admin-task-details-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-details-back-button {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-details-back-button:hover {
+  background: #f8fafc;
+}
+
+.admin-task-details-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.admin-task-details-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-task-details-title-row h2 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 26px;
+}
+
+.admin-task-details-category {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-details-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-details-status.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-details-status.status-in-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.admin-details-status.status-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.admin-task-details-description {
+  padding: 24px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-task-details-description h3 {
+  margin: 0 0 10px;
+  color: #334155;
+  font-size: 16px;
+}
+
+.admin-task-details-description p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.admin-task-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 24px 0;
+}
+
+.admin-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.admin-detail-item span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.admin-detail-item strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.admin-details-priority.priority-high {
+  color: #dc2626;
+}
+
+.admin-details-priority.priority-medium {
+  color: #d97706;
+}
+
+.admin-details-priority.priority-low {
+  color: #16a34a;
+}
+
+.admin-task-details-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin-details-edit-button,
+.admin-details-delete-button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-details-edit-button {
+  background: #4f46e5;
+  color: white;
+}
+
+.admin-details-edit-button:hover {
+  background: #4338ca;
+}
+
+.admin-details-delete-button {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-details-delete-button:hover {
+  background: #fecaca;
+}
+
+@media (max-width: 800px) {
+  .admin-task-details-page {
+    padding: 20px;
+  }
+
+  .admin-task-details-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-task-details-title-row {
+    flex-direction: column;
+  }
+
+  .admin-task-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-task-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-task-details-actions {
+    flex-direction: column;
+  }
+
+  .admin-details-edit-button,
+  .admin-details-delete-button {
+    width: 100%;
+  }
+}

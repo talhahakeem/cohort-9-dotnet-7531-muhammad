@@ -1,0 +1,148 @@
+.create-task-page {
+  padding: 32px;
+}
+
+.create-task-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.create-task-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #111827;
+}
+
+.create-task-header p {
+  margin: 7px 0 0;
+  color: #6b7280;
+}
+
+.back-button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 15px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.back-button:hover {
+  background: #f9fafb;
+}
+
+.task-form {
+  max-width: 900px;
+  padding: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 13px;
+  background: white;
+  color: #374151;
+  font: inherit;
+  outline: none;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancel-button,
+.submit-button {
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.submit-button {
+  border: none;
+  background: #2563eb;
+  color: white;
+}
+
+.submit-button:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .create-task-page {
+    padding: 20px;
+  }
+
+  .create-task-header {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .task-form {
+    padding: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
