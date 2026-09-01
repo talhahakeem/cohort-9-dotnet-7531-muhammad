@@ -33,7 +33,7 @@ public class AuthControllerTests
 
         _authServiceMock
             .Setup(x => x.RegisterAsync(request))
-            .ReturnsAsync(true);
+            .ReturnsAsync(AuthResult.Success());
 
         // Act
         var result = await _controller.Register(request);
@@ -51,6 +51,34 @@ public class AuthControllerTests
     }
 
     [Fact]
+    public async Task Register_ShouldReturnBadRequest_WithValidationErrors_WhenPasswordIsInvalid()
+    {
+        // Arrange
+        var request = new RegisterRequest
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Email = "test@example.com",
+            Password = "short",
+            ConfirmPassword = "short"
+        };
+
+        // Act
+        var result = await _controller.Register(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        var payload = badRequestResult.Value as ValidationProblemDetails;
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Errors);
+
+        _authServiceMock.Verify(
+            x => x.RegisterAsync(It.IsAny<RegisterRequest>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Register_ShouldReturnBadRequest_WhenRegistrationFails()
     {
         // Arrange
@@ -65,7 +93,7 @@ public class AuthControllerTests
 
         _authServiceMock
             .Setup(x => x.RegisterAsync(request))
-            .ReturnsAsync(false);
+            .ReturnsAsync(AuthResult.Failure("Registration failed."));
 
         // Act
         var result = await _controller.Register(request);
@@ -74,9 +102,7 @@ public class AuthControllerTests
         var badRequestResult =
             Assert.IsType<BadRequestObjectResult>(result);
 
-        Assert.Equal(
-            "Registration failed.",
-            badRequestResult.Value);
+        Assert.NotNull(badRequestResult.Value);
     }
 
     [Fact]

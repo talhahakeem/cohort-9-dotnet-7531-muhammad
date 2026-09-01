@@ -2,6 +2,7 @@
 using TaskManagement.Application.DTOs.Auth;
 using TaskManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace TaskManagement.API.Controllers;
 
@@ -16,13 +17,94 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    private static List<string> ValidatePassword(string password)
     {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errors.Add("Password is required.");
+            return errors;
+        }
+
+        if (password.Length < 8)
+        {
+            errors.Add("Password must be at least 8 characters long.");
+        }
+
+        if (!password.Any(char.IsUpper))
+        {
+            errors.Add("Password must contain at least one uppercase letter.");
+        }
+
+        if (!password.Any(char.IsLower))
+        {
+            errors.Add("Password must contain at least one lowercase letter.");
+        }
+
+        if (!password.Any(char.IsDigit))
+        {
+            errors.Add("Password must contain at least one number.");
+        }
+
+        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+        {
+            errors.Add("Password must contain at least one special character.");
+        }
+
+        return errors;
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var passwordErrors = ValidatePassword(request.Password);
+        if (passwordErrors.Count > 0)
+        {
+            var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                [nameof(RegisterRequest.Password)] = passwordErrors.ToArray()
+            })
+            {
+                Title = "One or more validation errors occurred."
+            };
+
+            return BadRequest(problemDetails);
+        }
+
+        if (request.Password != request.ConfirmPassword)
+        {
+            var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                [nameof(RegisterRequest.ConfirmPassword)] = new[] { "Passwords do not match." }
+            })
+            {
+                Title = "One or more validation errors occurred."
+            };
+
+            return BadRequest(problemDetails);
+        }
+
         var result = await _authService.RegisterAsync(request);
 
-        if (!result)
-            return BadRequest("Registration failed.");
+        if (result is null || !result.Succeeded)
+        {
+            var errors = result?.Errors ?? new List<string> { "Registration failed." };
+            var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                ["Password"] = errors.ToArray()
+            })
+            {
+                Title = "One or more validation errors occurred."
+            };
+
+            return BadRequest(problemDetails);
+        }
 
         return Ok("User registered successfully.");
     }
